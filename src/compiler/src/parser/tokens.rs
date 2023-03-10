@@ -1,5 +1,5 @@
 
-#[derive(Clone)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum TokenSymbol {
     EOF,
     Newline(u32, u32),
