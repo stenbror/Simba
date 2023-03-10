@@ -37,9 +37,15 @@ impl Tokenizer for SimbaTokenizer {
     fn is_keyword(&self, text: &str, start_pos: u32, end_pos: u32) -> Option<TokenSymbol> {
         match text {
             "and" => Some(EOF),
+            "constructor" => Some(EOF),
+            "destructor" => Some(EOF),
             "ensure" => Some(EOF), // assert
+            "fun" => Some(EOF),
             "match" => Some(EOF),
+            "method" => Some(EOF),
+            "mutable" => Some(EOF),
             "or" => Some(EOF),
+            "property" => Some(EOF),
             "not" => Some(EOF),
             "type" => Some(EOF),
             "use" => Some(EOF),
@@ -51,6 +57,8 @@ impl Tokenizer for SimbaTokenizer {
     fn is_operator_or_delimiter(&self, chars: ( char, char, char ), start_pos: u32, end_pos: u32) -> Option<(TokenSymbol, u8)> {
         match chars {
             ( '(', ')', _  ) => Some((EOF, 2)), // Unit = Void
+            ( ':', ':', _  ) => Some((EOF, 2)),
+            ( ':' , '=', _ ) => Some((EOF, 2)),
             _ => None
         }
     }
