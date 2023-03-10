@@ -7,6 +7,8 @@ use crate::parser::simba_parser::SimbaParser;
 
 
 pub trait Expressions {
+    fn parse_expression_test(&self) -> Result<Box<AbstractSyntaxTree>, String>;
+    fn parse_expression_lambda(&self) -> Result<Box<AbstractSyntaxTree>, String>;
     fn parse_expression_or_test(&self) -> Result<Box<AbstractSyntaxTree>, String>;
     fn parse_expression_and_test(&self) -> Result<Box<AbstractSyntaxTree>, String>;
     fn parse_expression_not_test(&self) -> Result<Box<AbstractSyntaxTree>, String>;
@@ -14,6 +16,39 @@ pub trait Expressions {
 
 
 impl Expressions for SimbaParser {
+
+    // Rule: or_test [ '?' or_test ':' test ] | lambda
+    fn parse_expression_test(&self) -> Result<Box<AbstractSyntaxTree>, String> {
+        let pos = self.lexer.cur_pos;
+        match *self.lexer.symbol.clone()? {
+            TokenSymbol::Fun( _ , _ ) => self.parse_expression_lambda(),
+            _ => {
+                let left = self.parse_expression_or_test()?;
+                match *self.lexer.symbol.clone()? {
+                    TokenSymbol::Query( _ , _ ) => {
+                        let symbol1 = self.lexer.symbol.clone()?;
+                        self.lexer.advance();
+                        let right = self.parse_expression_or_test()?;
+                        match *self.lexer.symbol.clone()? {
+                            TokenSymbol::Colon( _ , _ ) => {
+                                let symbol2 = self.lexer.symbol.clone()?;
+                                self.lexer.advance();
+                                let next = self.parse_expression_test()?;
+                                Ok(Box::new(AbstractSyntaxTree::Test(pos, self.lexer.cur_pos, left, symbol1, right, symbol2, next)))
+                            },
+                            _ => Err(format!("SyntaxError: Missing ':' in query operator '?' at position {}", self.lexer.cur_pos))
+                        }
+                    },
+                    _ => Ok(left)
+                }
+            }
+        }
+    }
+
+    fn parse_expression_lambda(&self) -> Result<Box<AbstractSyntaxTree>, String> {
+        Ok(Box::new(AbstractSyntaxTree::Empty(0)))
+    }
+
 
     // Rule: and_test 'or' and_test | and_test
     fn parse_expression_or_test(&self) -> Result<Box<AbstractSyntaxTree>, String> {
