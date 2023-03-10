@@ -6,13 +6,15 @@ use crate::parser::tokens::TokenSymbol::EOF;
 // SimbaTokenizer data structure //////////////////////////////////////////////////////////////////////////////////////
 
 pub struct SimbaTokenizer {
-
+    pub(crate) symbol: Result<Box<TokenSymbol>, String>,
+    pub(crate) cur_pos: u32
 }
 
 // Trait: Tokenizer ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 pub trait Tokenizer {
     fn new(tab_size: u8) -> SimbaTokenizer;
+    fn advance(&self);
     fn is_keyword(&self, text: &str, start_pos: u32, end_pos: u32) -> Option<TokenSymbol>;
     fn is_operator_or_delimiter(&self, chars: ( char, char, char ), start_pos: u32, end_pos: u32) -> Option<(TokenSymbol, u8)>;
 }
@@ -23,8 +25,13 @@ impl Tokenizer for SimbaTokenizer {
 
     fn new(tab_size: u8) -> SimbaTokenizer {
         SimbaTokenizer {
-
+            symbol: Ok(Box::new(TokenSymbol::EOF)),
+            cur_pos: 0
         }
+    }
+
+    fn advance(&self) {
+
     }
 
     fn is_keyword(&self, text: &str, start_pos: u32, end_pos: u32) -> Option<TokenSymbol> {
