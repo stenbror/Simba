@@ -5,4 +5,5 @@ pub enum TokenSymbol {
     Newline(u32, u32),
     Indent,
     Dedent,
+    Unit(u32, u32) // '()' = Void
 }
