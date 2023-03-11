@@ -21,5 +21,8 @@ pub enum TokenSymbol {
     Equal(u32, u32),
     GreaterEqual(u32, u32),
     Greater(u32, u32),
-    NotEqual(u32, u32)
+    NotEqual(u32, u32),
+    BitwiseOr(u32, u32),
+    BitwiseXor(u32, u32),
+    BitwiseAnd(u32, u32),
 }

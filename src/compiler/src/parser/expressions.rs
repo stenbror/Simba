@@ -188,7 +188,17 @@ impl Expressions for SimbaParser {
     }
 
     fn parse_expression_or_expr(&self) -> Result<Box<AbstractSyntaxTree>, String> {
-        Ok(Box::new(AbstractSyntaxTree::Empty(0)))
+        let pos = self.lexer.cur_pos;
+        let left = self.parse_expression_and_test()?;
+        match *self.lexer.symbol.clone()? {
+            TokenSymbol::BitwiseOr( _ , _ ) => {
+                let symbol = self.lexer.symbol.clone()?;
+                self.lexer.advance();
+                let right = self.parse_expression_and_test()?;
+                Ok(Box::new(AbstractSyntaxTree::BitwiseOr(pos, self.lexer.cur_pos, left, symbol, right)))
+            }
+            _ => Ok(left)
+        }
     }
 
     fn parse_expression_and_expr(&self) -> Result<Box<AbstractSyntaxTree>, String> {
