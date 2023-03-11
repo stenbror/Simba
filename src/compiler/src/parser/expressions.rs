@@ -258,8 +258,25 @@ impl Expressions for SimbaParser {
         }
     }
 
+    // Rule: term [ ( '+' | '-' ) term ]
     fn parse_expression_arith_expr(&self) -> Result<Box<AbstractSyntaxTree>, String> {
-        Ok(Box::new(AbstractSyntaxTree::Empty(0)))
+        let pos = self.lexer.cur_pos;
+        let left = self.parse_expression_term()?;
+        match *self.lexer.symbol.clone()? {
+            TokenSymbol::Plus( _ , _ ) => {
+                let symbol = self.lexer.symbol.clone()?;
+                self.lexer.advance();
+                let right = self.parse_expression_term()?;
+                Ok(Box::new(AbstractSyntaxTree::Plus(pos, self.lexer.cur_pos, left, symbol, right)))
+            },
+            TokenSymbol::Minus( _ , _ ) => {
+                let symbol = self.lexer.symbol.clone()?;
+                self.lexer.advance();
+                let right = self.parse_expression_term()?;
+                Ok(Box::new(AbstractSyntaxTree::Minus(pos, self.lexer.cur_pos, left, symbol, right)))
+            },
+            _ => Ok(left)
+        }
     }
 
     fn parse_expression_term(&self) -> Result<Box<AbstractSyntaxTree>, String> {
