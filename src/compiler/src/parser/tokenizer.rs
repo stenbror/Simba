@@ -40,7 +40,9 @@ impl Tokenizer for SimbaTokenizer {
             "constructor" => Some(EOF),
             "destructor" => Some(EOF),
             "ensure" => Some(EOF), // assert
+            "excluding" => Some(EOF), // not in
             "fun" => Some(EOF),
+            "including" => Some(EOF), // in
             "match" => Some(EOF),
             "method" => Some(EOF),
             "mutable" => Some(EOF),

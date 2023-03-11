@@ -13,6 +13,10 @@ pub trait Expressions {
     fn parse_expression_or_test(&self) -> Result<Box<AbstractSyntaxTree>, String>;
     fn parse_expression_and_test(&self) -> Result<Box<AbstractSyntaxTree>, String>;
     fn parse_expression_not_test(&self) -> Result<Box<AbstractSyntaxTree>, String>;
+    fn parse_expression_comparison(&self) -> Result<Box<AbstractSyntaxTree>, String>;
+    fn parse_expression_or_expr(&self) -> Result<Box<AbstractSyntaxTree>, String>;
+    fn parse_expression_and_expr(&self) -> Result<Box<AbstractSyntaxTree>, String>;
+    fn parse_expression_not_expr(&self) -> Result<Box<AbstractSyntaxTree>, String>;
 }
 
 
@@ -98,6 +102,31 @@ impl Expressions for SimbaParser {
 
     // Rule: 'not' not_test |
     fn parse_expression_not_test(&self) -> Result<Box<AbstractSyntaxTree>, String> {
+        let pos = self.lexer.cur_pos;
+        match *self.lexer.symbol.clone()? {
+            TokenSymbol::NotTest( _ , _ ) => {
+                let symbol = self.lexer.symbol.clone()?;
+                self.lexer.advance();
+                let right = self.parse_expression_not_test()?;
+                Ok(Box::new(AbstractSyntaxTree::Not(pos, self.lexer.cur_pos, symbol, right)))
+            }
+            _ => self.parse_expression_comparison()
+        }
+    }
+
+    fn parse_expression_comparison(&self) -> Result<Box<AbstractSyntaxTree>, String> {
+        Ok(Box::new(AbstractSyntaxTree::Empty(0)))
+    }
+
+    fn parse_expression_or_expr(&self) -> Result<Box<AbstractSyntaxTree>, String> {
+        Ok(Box::new(AbstractSyntaxTree::Empty(0)))
+    }
+
+    fn parse_expression_and_expr(&self) -> Result<Box<AbstractSyntaxTree>, String> {
+        Ok(Box::new(AbstractSyntaxTree::Empty(0)))
+    }
+
+    fn parse_expression_not_expr(&self) -> Result<Box<AbstractSyntaxTree>, String> {
         Ok(Box::new(AbstractSyntaxTree::Empty(0)))
     }
 }
