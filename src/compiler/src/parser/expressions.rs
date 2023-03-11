@@ -22,6 +22,8 @@ pub trait Expressions {
     fn parse_expression_term(&self) -> Result<Box<AbstractSyntaxTree>, String>;
     fn parse_expression_factor(&self) -> Result<Box<AbstractSyntaxTree>, String>;
     fn parse_expression_power(&self) -> Result<Box<AbstractSyntaxTree>, String>;
+    fn parse_expression_atom_expr(&self) -> Result<Box<AbstractSyntaxTree>, String>;
+    fn parse_expression_atom(&self) -> Result<Box<AbstractSyntaxTree>, String>;
 }
 
 
@@ -365,7 +367,26 @@ impl Expressions for SimbaParser {
         }
     }
 
+    // Rule: atom_expr [ '**' factor ]
     fn parse_expression_power(&self) -> Result<Box<AbstractSyntaxTree>, String> {
+        let pos = self.lexer.cur_pos;
+        let left = self.parse_expression_atom_expr()?;
+        match *self.lexer.symbol.clone()? {
+            TokenSymbol::Power( _ , _ ) => {
+                let symbol = self.lexer.symbol.clone()?;
+                self.lexer.advance();
+                let right = self.parse_expression_factor()?;
+                Ok(Box::new(AbstractSyntaxTree::Power(pos, self.lexer.cur_pos, left, symbol, right)))
+            },
+            _ => Ok(left)
+        }
+    }
+
+    fn parse_expression_atom_expr(&self) -> Result<Box<AbstractSyntaxTree>, String> {
+        Ok(Box::new(AbstractSyntaxTree::Empty(0)))
+    }
+
+    fn parse_expression_atom(&self) -> Result<Box<AbstractSyntaxTree>, String> {
         Ok(Box::new(AbstractSyntaxTree::Empty(0)))
     }
 }

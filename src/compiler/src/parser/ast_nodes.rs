@@ -37,4 +37,5 @@ pub enum AbstractSyntaxTree {
     UnaryPreDecrement(u32, u32, Box<TokenSymbol>, Box<AbstractSyntaxTree>),
     UnaryPostIncrement(u32, u32, Box<AbstractSyntaxTree>, Box<TokenSymbol>),
     UnaryPostDecrement(u32, u32, Box<AbstractSyntaxTree>, Box<TokenSymbol>),
+    Power(u32, u32, Box<AbstractSyntaxTree>, Box<TokenSymbol>, Box<AbstractSyntaxTree>),
 }

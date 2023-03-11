@@ -38,4 +38,5 @@ pub enum TokenSymbol {
     UnaryBitwiseInvert(u32, u32),
     Increment(u32, u32),
     Decrement(u32, u32),
+    Power(u32, u32),
 }
