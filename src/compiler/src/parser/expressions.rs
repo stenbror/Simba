@@ -104,7 +104,7 @@ impl Expressions for SimbaParser {
     fn parse_expression_not_test(&self) -> Result<Box<AbstractSyntaxTree>, String> {
         let pos = self.lexer.cur_pos;
         match *self.lexer.symbol.clone()? {
-            TokenSymbol::NotTest( _ , _ ) => {
+            TokenSymbol::Not( _ , _ ) => {
                 let symbol = self.lexer.symbol.clone()?;
                 self.lexer.advance();
                 let right = self.parse_expression_not_test()?;
@@ -114,6 +114,7 @@ impl Expressions for SimbaParser {
         }
     }
 
+    // Rule: or_expr [ ( '<' | '>') or_Expr ]
     fn parse_expression_comparison(&self) -> Result<Box<AbstractSyntaxTree>, String> {
         Ok(Box::new(AbstractSyntaxTree::Empty(0)))
     }
