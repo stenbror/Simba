@@ -16,4 +16,10 @@ pub enum TokenSymbol {
     Including(u32, u32),
     Excluding(u32, u32),
     Is(u32, u32),
+    Less(u32, u32),
+    LessEqual(u32, u32),
+    Equal(u32, u32),
+    GreaterEqual(u32, u32),
+    Greater(u32, u32),
+    NotEqual(u32, u32)
 }

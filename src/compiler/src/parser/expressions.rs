@@ -114,7 +114,7 @@ impl Expressions for SimbaParser {
         }
     }
 
-    // Rule: or_expr [ ( '<' | '>' | 'including' | 'excluding' | 'is' | 'is' 'not' ) or_Expr ]
+    // Rule: or_expr [ ( '<' | '>' | '==' | '!=' | '<>' | '>=' | '<=' | 'including' | 'excluding' | 'is' | 'is' 'not' ) or_Expr ]
     fn parse_expression_comparison(&self) -> Result<Box<AbstractSyntaxTree>, String> {
         let pos = self.lexer.cur_pos;
         let left = self.parse_expression_or_expr()?;
@@ -146,6 +146,42 @@ impl Expressions for SimbaParser {
                         Ok(Box::new(AbstractSyntaxTree::Is(pos, self.lexer.cur_pos, left, symbol1, right)))
                     }
                 }
+            },
+            TokenSymbol::Less( _ , _ ) => {
+                let symbol = self.lexer.symbol.clone()?;
+                self.lexer.advance();
+                let right = self.parse_expression_or_expr()?;
+                Ok(Box::new(AbstractSyntaxTree::Less(pos, self.lexer.cur_pos, left, symbol, right)))
+            },
+            TokenSymbol::LessEqual( _ , _ ) => {
+                let symbol = self.lexer.symbol.clone()?;
+                self.lexer.advance();
+                let right = self.parse_expression_or_expr()?;
+                Ok(Box::new(AbstractSyntaxTree::LessEqual(pos, self.lexer.cur_pos, left, symbol, right)))
+            },
+            TokenSymbol::Equal( _ , _ ) => {
+                let symbol = self.lexer.symbol.clone()?;
+                self.lexer.advance();
+                let right = self.parse_expression_or_expr()?;
+                Ok(Box::new(AbstractSyntaxTree::Equal(pos, self.lexer.cur_pos, left, symbol, right)))
+            },
+            TokenSymbol::NotEqual( _ , _ ) => {
+                let symbol = self.lexer.symbol.clone()?;
+                self.lexer.advance();
+                let right = self.parse_expression_or_expr()?;
+                Ok(Box::new(AbstractSyntaxTree::NotEqual(pos, self.lexer.cur_pos, left, symbol, right)))
+            },
+            TokenSymbol::Greater( _ , _ ) => {
+                let symbol = self.lexer.symbol.clone()?;
+                self.lexer.advance();
+                let right = self.parse_expression_or_expr()?;
+                Ok(Box::new(AbstractSyntaxTree::Greater(pos, self.lexer.cur_pos, left, symbol, right)))
+            },
+            TokenSymbol::GreaterEqual( _ , _ ) => {
+                let symbol = self.lexer.symbol.clone()?;
+                self.lexer.advance();
+                let right = self.parse_expression_or_expr()?;
+                Ok(Box::new(AbstractSyntaxTree::GreaterEqual(pos, self.lexer.cur_pos, left, symbol, right)))
             },
             _ => Ok(left)
         }
