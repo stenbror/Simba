@@ -1,4 +1,4 @@
-
+use crate::parser::ast_nodes::AbstractSyntaxTree;
 use crate::parser::tokens::TokenSymbol;
 use crate::parser::tokens::TokenSymbol::EOF;
 
@@ -15,7 +15,7 @@ pub struct SimbaTokenizer {
 pub trait Tokenizer {
     fn new(tab_size: u8) -> SimbaTokenizer;
     fn advance(&self);
-    fn is_keyword(&self, text: &str, start_pos: u32, end_pos: u32) -> Option<TokenSymbol>;
+    fn is_keyword(&self, text: &str, start_pos: u32, end_pos: u32) -> Option<Box<TokenSymbol>>;
     fn is_operator_or_delimiter(&self, chars: ( char, char, char ), start_pos: u32, end_pos: u32) -> Option<(TokenSymbol, u8)>;
 }
 
@@ -34,24 +34,25 @@ impl Tokenizer for SimbaTokenizer {
 
     }
 
-    fn is_keyword(&self, text: &str, start_pos: u32, end_pos: u32) -> Option<TokenSymbol> {
+    fn is_keyword(&self, text: &str, start_pos: u32, end_pos: u32) -> Option<Box<TokenSymbol>> {
         match text {
-            "and" => Some(EOF),
-            "constructor" => Some(EOF),
-            "destructor" => Some(EOF),
-            "ensure" => Some(EOF), // assert
-            "excluding" => Some(EOF), // not in
-            "fun" => Some(EOF),
-            "including" => Some(EOF), // in
-            "match" => Some(EOF),
-            "method" => Some(EOF),
-            "mutable" => Some(EOF),
-            "or" => Some(EOF),
-            "property" => Some(EOF),
-            "not" => Some(EOF),
-            "type" => Some(EOF),
-            "use" => Some(EOF),
-            "with" => Some(EOF),
+            "and" => None,
+            "constructor" => None,
+            "destructor" => None,
+            "ensure" => None, // assert
+            "excluding" => Some(Box::new(TokenSymbol::Excluding(start_pos, end_pos))), // not in
+            "fun" => None,
+            "including" => Some(Box::new(TokenSymbol::Including(start_pos, end_pos))), // in
+            "is" => Some(Box::new(TokenSymbol::Is(start_pos, end_pos))),
+            "match" => None,
+            "method" => None,
+            "mutable" => None,
+            "or" => None,
+            "property" => None,
+            "not" => None,
+            "type" => None,
+            "use" => None,
+            "with" => None,
             _ => None
         }
     }

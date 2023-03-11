@@ -9,4 +9,8 @@ pub enum AbstractSyntaxTree {
     Or(u32, u32, Box<AbstractSyntaxTree>, Box<TokenSymbol>, Box<AbstractSyntaxTree>),
     And(u32, u32, Box<AbstractSyntaxTree>, Box<TokenSymbol>, Box<AbstractSyntaxTree>),
     Not(u32, u32, Box<TokenSymbol>, Box<AbstractSyntaxTree>),
+    Including(u32, u32, Box<AbstractSyntaxTree>, Box<TokenSymbol>, Box<AbstractSyntaxTree>),
+    Excluding(u32, u32, Box<AbstractSyntaxTree>, Box<TokenSymbol>, Box<AbstractSyntaxTree>),
+    Is(u32, u32, Box<AbstractSyntaxTree>, Box<TokenSymbol>, Box<AbstractSyntaxTree>),
+    IsNot(u32, u32, Box<AbstractSyntaxTree>, Box<TokenSymbol>, Box<TokenSymbol>, Box<AbstractSyntaxTree>),
 }

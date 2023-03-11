@@ -114,9 +114,41 @@ impl Expressions for SimbaParser {
         }
     }
 
-    // Rule: or_expr [ ( '<' | '>') or_Expr ]
+    // Rule: or_expr [ ( '<' | '>' | 'including' | 'excluding' | 'is' | 'is' 'not' ) or_Expr ]
     fn parse_expression_comparison(&self) -> Result<Box<AbstractSyntaxTree>, String> {
-        Ok(Box::new(AbstractSyntaxTree::Empty(0)))
+        let pos = self.lexer.cur_pos;
+        let left = self.parse_expression_or_expr()?;
+        match *self.lexer.symbol.clone()? {
+            TokenSymbol::Including( _ , _ ) => {
+                let symbol = self.lexer.symbol.clone()?;
+                self.lexer.advance();
+                let right = self.parse_expression_or_expr()?;
+                Ok(Box::new(AbstractSyntaxTree::Including(pos, self.lexer.cur_pos, left, symbol, right)))
+            },
+            TokenSymbol::Excluding( _ , _ ) => {
+                let symbol = self.lexer.symbol.clone()?;
+                self.lexer.advance();
+                let right = self.parse_expression_or_expr()?;
+                Ok(Box::new(AbstractSyntaxTree::Excluding(pos, self.lexer.cur_pos, left, symbol, right)))
+            },
+            TokenSymbol::Is( _ , _ ) => {
+                let symbol1 = self.lexer.symbol.clone()?;
+                self.lexer.advance();
+                match *self.lexer.symbol.clone()? {
+                    TokenSymbol::Not( _ , _ ) => {
+                        let symbol2 = self.lexer.symbol.clone()?;
+                        self.lexer.advance();
+                        let right = self.parse_expression_or_expr()?;
+                        Ok(Box::new(AbstractSyntaxTree::IsNot(pos, self.lexer.cur_pos, left, symbol1, symbol2, right)))
+                    }
+                    _ => {
+                        let right = self.parse_expression_or_expr()?;
+                        Ok(Box::new(AbstractSyntaxTree::Is(pos, self.lexer.cur_pos, left, symbol1, right)))
+                    }
+                }
+            },
+            _ => Ok(left)
+        }
     }
 
     fn parse_expression_or_expr(&self) -> Result<Box<AbstractSyntaxTree>, String> {

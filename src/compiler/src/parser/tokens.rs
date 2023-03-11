@@ -13,4 +13,7 @@ pub enum TokenSymbol {
     Query(u32, u32), // '?'
     Colon(u32, u32),
     ColonAssign(u32, u32), // ':='
+    Including(u32, u32),
+    Excluding(u32, u32),
+    Is(u32, u32),
 }
