@@ -15,8 +15,8 @@ pub trait Expressions {
     fn parse_expression_not_test(&self) -> Result<Box<AbstractSyntaxTree>, String>;
     fn parse_expression_comparison(&self) -> Result<Box<AbstractSyntaxTree>, String>;
     fn parse_expression_or_expr(&self) -> Result<Box<AbstractSyntaxTree>, String>;
+    fn parse_expression_xor_expr(&self) -> Result<Box<AbstractSyntaxTree>, String>;
     fn parse_expression_and_expr(&self) -> Result<Box<AbstractSyntaxTree>, String>;
-    fn parse_expression_not_expr(&self) -> Result<Box<AbstractSyntaxTree>, String>;
 }
 
 
@@ -187,21 +187,23 @@ impl Expressions for SimbaParser {
         }
     }
 
+    // Rule: xor_expr [ '|' xor_expr ]
     fn parse_expression_or_expr(&self) -> Result<Box<AbstractSyntaxTree>, String> {
         let pos = self.lexer.cur_pos;
-        let left = self.parse_expression_and_test()?;
+        let left = self.parse_expression_xor_expr()?;
         match *self.lexer.symbol.clone()? {
             TokenSymbol::BitwiseOr( _ , _ ) => {
                 let symbol = self.lexer.symbol.clone()?;
                 self.lexer.advance();
-                let right = self.parse_expression_and_test()?;
+                let right = self.parse_expression_xor_expr()?;
                 Ok(Box::new(AbstractSyntaxTree::BitwiseOr(pos, self.lexer.cur_pos, left, symbol, right)))
             }
             _ => Ok(left)
         }
     }
 
-    fn parse_expression_and_expr(&self) -> Result<Box<AbstractSyntaxTree>, String> {
+    // Rule: and_expr [ '^' and_expr ]
+    fn parse_expression_xor_expr(&self) -> Result<Box<AbstractSyntaxTree>, String> {
         let pos = self.lexer.cur_pos;
         let left = self.parse_expression_and_test()?;
         match *self.lexer.symbol.clone()? {
@@ -215,7 +217,7 @@ impl Expressions for SimbaParser {
         }
     }
 
-    fn parse_expression_not_expr(&self) -> Result<Box<AbstractSyntaxTree>, String> {
+    fn parse_expression_and_expr(&self) -> Result<Box<AbstractSyntaxTree>, String> {
         Ok(Box::new(AbstractSyntaxTree::Empty(0)))
     }
 }
