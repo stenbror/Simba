@@ -279,8 +279,37 @@ impl Expressions for SimbaParser {
         }
     }
 
+    // Rule: factor [ ( '*' | '%' | '@' | '/' ) factor ]
     fn parse_expression_term(&self) -> Result<Box<AbstractSyntaxTree>, String> {
-        Ok(Box::new(AbstractSyntaxTree::Empty(0)))
+        let pos = self.lexer.cur_pos;
+        let left = self.parse_expression_factor()?;
+        match *self.lexer.symbol.clone()? {
+            TokenSymbol::Mul( _ , _ ) => {
+                let symbol = self.lexer.symbol.clone()?;
+                self.lexer.advance();
+                let right = self.parse_expression_factor()?;
+                Ok(Box::new(AbstractSyntaxTree::Mul(pos, self.lexer.cur_pos, left, symbol, right)))
+            },
+            TokenSymbol::Modulo( _ , _ ) => {
+                let symbol = self.lexer.symbol.clone()?;
+                self.lexer.advance();
+                let right = self.parse_expression_factor()?;
+                Ok(Box::new(AbstractSyntaxTree::Modulo(pos, self.lexer.cur_pos, left, symbol, right)))
+            },
+            TokenSymbol::Matrice( _ , _ ) => {
+                let symbol = self.lexer.symbol.clone()?;
+                self.lexer.advance();
+                let right = self.parse_expression_factor()?;
+                Ok(Box::new(AbstractSyntaxTree::Matrice(pos, self.lexer.cur_pos, left, symbol, right)))
+            },
+            TokenSymbol::Div( _ , _ ) => {
+                let symbol = self.lexer.symbol.clone()?;
+                self.lexer.advance();
+                let right = self.parse_expression_factor()?;
+                Ok(Box::new(AbstractSyntaxTree::Div(pos, self.lexer.cur_pos, left, symbol, right)))
+            },
+            _ => Ok(left)
+        }
     }
 
     fn parse_expression_factor(&self) -> Result<Box<AbstractSyntaxTree>, String> {

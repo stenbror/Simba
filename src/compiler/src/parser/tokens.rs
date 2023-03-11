@@ -29,4 +29,8 @@ pub enum TokenSymbol {
     BitwiseShiftRight(u32, u32),
     Plus(u32, u32),
     Minus(u32, u32),
+    Mul(u32, u32),
+    Modulo(u32, u32),
+    Matrice(u32, u32),
+    Div(u32, u32),
 }
