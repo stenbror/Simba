@@ -17,6 +17,11 @@ pub trait Expressions {
     fn parse_expression_or_expr(&self) -> Result<Box<AbstractSyntaxTree>, String>;
     fn parse_expression_xor_expr(&self) -> Result<Box<AbstractSyntaxTree>, String>;
     fn parse_expression_and_expr(&self) -> Result<Box<AbstractSyntaxTree>, String>;
+    fn parse_expression_shift_expr(&self) -> Result<Box<AbstractSyntaxTree>, String>;
+    fn parse_expression_arith_expr(&self) -> Result<Box<AbstractSyntaxTree>, String>;
+    fn parse_expression_term(&self) -> Result<Box<AbstractSyntaxTree>, String>;
+    fn parse_expression_factor(&self) -> Result<Box<AbstractSyntaxTree>, String>;
+    fn parse_expression_power(&self) -> Result<Box<AbstractSyntaxTree>, String>;
 }
 
 
@@ -205,12 +210,12 @@ impl Expressions for SimbaParser {
     // Rule: and_expr [ '^' and_expr ]
     fn parse_expression_xor_expr(&self) -> Result<Box<AbstractSyntaxTree>, String> {
         let pos = self.lexer.cur_pos;
-        let left = self.parse_expression_and_test()?;
+        let left = self.parse_expression_and_expr()?;
         match *self.lexer.symbol.clone()? {
             TokenSymbol::BitwiseXor( _ , _ ) => {
                 let symbol = self.lexer.symbol.clone()?;
                 self.lexer.advance();
-                let right = self.parse_expression_and_test()?;
+                let right = self.parse_expression_and_expr()?;
                 Ok(Box::new(AbstractSyntaxTree::BitwiseXor(pos, self.lexer.cur_pos, left, symbol, right)))
             }
             _ => Ok(left)
@@ -218,6 +223,36 @@ impl Expressions for SimbaParser {
     }
 
     fn parse_expression_and_expr(&self) -> Result<Box<AbstractSyntaxTree>, String> {
+        let pos = self.lexer.cur_pos;
+        let left = self.parse_expression_shift_expr()?;
+        match *self.lexer.symbol.clone()? {
+            TokenSymbol::BitwiseAnd( _ , _ ) => {
+                let symbol = self.lexer.symbol.clone()?;
+                self.lexer.advance();
+                let right = self.parse_expression_shift_expr()?;
+                Ok(Box::new(AbstractSyntaxTree::BitwiseAnd(pos, self.lexer.cur_pos, left, symbol, right)))
+            }
+            _ => Ok(left)
+        }
+    }
+
+    fn parse_expression_shift_expr(&self) -> Result<Box<AbstractSyntaxTree>, String> {
+        Ok(Box::new(AbstractSyntaxTree::Empty(0)))
+    }
+
+    fn parse_expression_arith_expr(&self) -> Result<Box<AbstractSyntaxTree>, String> {
+        Ok(Box::new(AbstractSyntaxTree::Empty(0)))
+    }
+
+    fn parse_expression_term(&self) -> Result<Box<AbstractSyntaxTree>, String> {
+        Ok(Box::new(AbstractSyntaxTree::Empty(0)))
+    }
+
+    fn parse_expression_factor(&self) -> Result<Box<AbstractSyntaxTree>, String> {
+        Ok(Box::new(AbstractSyntaxTree::Empty(0)))
+    }
+
+    fn parse_expression_power(&self) -> Result<Box<AbstractSyntaxTree>, String> {
         Ok(Box::new(AbstractSyntaxTree::Empty(0)))
     }
 }
