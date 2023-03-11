@@ -33,4 +33,9 @@ pub enum TokenSymbol {
     Modulo(u32, u32),
     Matrice(u32, u32),
     Div(u32, u32),
+    UnaryPlus(u32, u32),
+    UnaryMinus(u32, u32),
+    UnaryBitwiseInvert(u32, u32),
+    Increment(u32, u32),
+    Decrement(u32, u32),
 }

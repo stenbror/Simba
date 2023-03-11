@@ -30,4 +30,11 @@ pub enum AbstractSyntaxTree {
     Modulo(u32, u32, Box<AbstractSyntaxTree>, Box<TokenSymbol>, Box<AbstractSyntaxTree>),
     Matrice(u32, u32, Box<AbstractSyntaxTree>, Box<TokenSymbol>, Box<AbstractSyntaxTree>),
     Div(u32, u32, Box<AbstractSyntaxTree>, Box<TokenSymbol>, Box<AbstractSyntaxTree>),
+    UnaryPlus(u32, u32, Box<TokenSymbol>, Box<AbstractSyntaxTree>),
+    UnaryMinus(u32, u32, Box<TokenSymbol>, Box<AbstractSyntaxTree>),
+    UnaryBitwiseInvert(u32, u32, Box<TokenSymbol>, Box<AbstractSyntaxTree>),
+    UnaryPreIncrement(u32, u32, Box<TokenSymbol>, Box<AbstractSyntaxTree>),
+    UnaryPreDecrement(u32, u32, Box<TokenSymbol>, Box<AbstractSyntaxTree>),
+    UnaryPostIncrement(u32, u32, Box<AbstractSyntaxTree>, Box<TokenSymbol>),
+    UnaryPostDecrement(u32, u32, Box<AbstractSyntaxTree>, Box<TokenSymbol>),
 }

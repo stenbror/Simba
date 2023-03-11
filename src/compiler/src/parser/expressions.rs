@@ -312,8 +312,57 @@ impl Expressions for SimbaParser {
         }
     }
 
+    // Rule:  ( ( '+' | '-' | '~ | '++' | '--' ) power_Expr ) | power_Expr [ '++' | '--' ]
     fn parse_expression_factor(&self) -> Result<Box<AbstractSyntaxTree>, String> {
-        Ok(Box::new(AbstractSyntaxTree::Empty(0)))
+        let pos = self.lexer.cur_pos;
+        match *self.lexer.symbol.clone()? {
+            TokenSymbol::Plus( _ , _ ) => {
+                let symbol = self.lexer.symbol.clone()?;
+                self.lexer.advance();
+                let right = self.parse_expression_power()?;
+                Ok(Box::new(AbstractSyntaxTree::UnaryPlus(pos, self.lexer.cur_pos, symbol, right)))
+            },
+            TokenSymbol::Minus( _ , _ ) => {
+                let symbol = self.lexer.symbol.clone()?;
+                self.lexer.advance();
+                let right = self.parse_expression_power()?;
+                Ok(Box::new(AbstractSyntaxTree::UnaryMinus(pos, self.lexer.cur_pos, symbol, right)))
+            },
+            TokenSymbol::UnaryBitwiseInvert( _ , _ ) => {
+                let symbol = self.lexer.symbol.clone()?;
+                self.lexer.advance();
+                let right = self.parse_expression_power()?;
+                Ok(Box::new(AbstractSyntaxTree::UnaryBitwiseInvert(pos, self.lexer.cur_pos, symbol, right)))
+            },
+            TokenSymbol::Increment( _ , _ ) => { // '++'
+                let symbol = self.lexer.symbol.clone()?;
+                self.lexer.advance();
+                let right = self.parse_expression_power()?;
+                Ok(Box::new(AbstractSyntaxTree::UnaryPreIncrement(pos, self.lexer.cur_pos, symbol, right)))
+            },
+            TokenSymbol::Decrement( _ , _ ) => { // '--'
+                let symbol = self.lexer.symbol.clone()?;
+                self.lexer.advance();
+                let right = self.parse_expression_power()?;
+                Ok(Box::new(AbstractSyntaxTree::UnaryPreDecrement(pos, self.lexer.cur_pos, symbol, right)))
+            },
+            _ => {
+                let right = self.parse_expression_power()?;
+                match *self.lexer.symbol.clone()? {
+                    TokenSymbol::Increment( _ , _ ) => {
+                        let symbol = self.lexer.symbol.clone()?;
+                        self.lexer.advance();
+                        Ok(Box::new(AbstractSyntaxTree::UnaryPostIncrement(pos, self.lexer.cur_pos, right, symbol)))
+                    },
+                    TokenSymbol::Decrement( _ , _ ) => {
+                        let symbol = self.lexer.symbol.clone()?;
+                        self.lexer.advance();
+                        Ok(Box::new(AbstractSyntaxTree::UnaryPostDecrement(pos, self.lexer.cur_pos, right, symbol)))
+                    },
+                    _ => Ok(right)
+                }
+            }
+        }
     }
 
     fn parse_expression_power(&self) -> Result<Box<AbstractSyntaxTree>, String> {
