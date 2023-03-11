@@ -11,4 +11,5 @@ pub enum TokenSymbol {
     Fun(u32, u32), //  Lambda    =>   fun a b -> a + b
     Query(u32, u32), // '?'
     Colon(u32, u32),
+    ColonAssign(u32, u32), // ':='
 }

@@ -7,6 +7,7 @@ use crate::parser::simba_parser::SimbaParser;
 
 
 pub trait Expressions {
+    fn parse_expression_named_expr(&self) -> Result<Box<AbstractSyntaxTree>, String>;
     fn parse_expression_test(&self) -> Result<Box<AbstractSyntaxTree>, String>;
     fn parse_expression_lambda(&self) -> Result<Box<AbstractSyntaxTree>, String>;
     fn parse_expression_or_test(&self) -> Result<Box<AbstractSyntaxTree>, String>;
@@ -16,6 +17,21 @@ pub trait Expressions {
 
 
 impl Expressions for SimbaParser {
+
+    // Rule: test [ ':=' test ]
+    fn parse_expression_named_expr(&self) -> Result<Box<AbstractSyntaxTree>, String> {
+        let pos = self.lexer.cur_pos;
+        let left = self.parse_expression_test()?;
+        match *self.lexer.symbol.clone()? {
+            TokenSymbol::ColonAssign( _ , _ ) => {
+                let symbol = self.lexer.symbol.clone()?;
+                self.lexer.advance();
+                let right = self.parse_expression_test()?;
+                Ok(Box::new(AbstractSyntaxTree::NamedExpr(pos, self.lexer.cur_pos, left, symbol, right)))
+            }
+            _ => Ok(left)
+        }
+    }
 
     // Rule: or_test [ '?' or_test ':' test ] | lambda
     fn parse_expression_test(&self) -> Result<Box<AbstractSyntaxTree>, String> {
@@ -45,10 +61,10 @@ impl Expressions for SimbaParser {
         }
     }
 
+    // Rule: 'fun' arguments '->' test  // arguments are like () for void or a b c d .... for list of arguments.
     fn parse_expression_lambda(&self) -> Result<Box<AbstractSyntaxTree>, String> {
         Ok(Box::new(AbstractSyntaxTree::Empty(0)))
     }
-
 
     // Rule: and_test 'or' and_test | and_test
     fn parse_expression_or_test(&self) -> Result<Box<AbstractSyntaxTree>, String> {
