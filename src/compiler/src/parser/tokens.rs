@@ -25,4 +25,8 @@ pub enum TokenSymbol {
     BitwiseOr(u32, u32),
     BitwiseXor(u32, u32),
     BitwiseAnd(u32, u32),
+    BitwiseShiftLeft(u32, u32),
+    BitwiseShiftRight(u32, u32),
+    Plus(u32, u32),
+    Minus(u32, u32),
 }

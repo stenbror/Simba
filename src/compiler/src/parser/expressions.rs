@@ -202,7 +202,7 @@ impl Expressions for SimbaParser {
                 self.lexer.advance();
                 let right = self.parse_expression_xor_expr()?;
                 Ok(Box::new(AbstractSyntaxTree::BitwiseOr(pos, self.lexer.cur_pos, left, symbol, right)))
-            }
+            },
             _ => Ok(left)
         }
     }
@@ -217,11 +217,12 @@ impl Expressions for SimbaParser {
                 self.lexer.advance();
                 let right = self.parse_expression_and_expr()?;
                 Ok(Box::new(AbstractSyntaxTree::BitwiseXor(pos, self.lexer.cur_pos, left, symbol, right)))
-            }
+            },
             _ => Ok(left)
         }
     }
 
+    // Rule: shift_expr [ '&' shift_expr ]
     fn parse_expression_and_expr(&self) -> Result<Box<AbstractSyntaxTree>, String> {
         let pos = self.lexer.cur_pos;
         let left = self.parse_expression_shift_expr()?;
@@ -231,13 +232,30 @@ impl Expressions for SimbaParser {
                 self.lexer.advance();
                 let right = self.parse_expression_shift_expr()?;
                 Ok(Box::new(AbstractSyntaxTree::BitwiseAnd(pos, self.lexer.cur_pos, left, symbol, right)))
-            }
+            },
             _ => Ok(left)
         }
     }
 
+    // Rule: arith_expr [ ( '<<' | '>>' ) arith_expr ]
     fn parse_expression_shift_expr(&self) -> Result<Box<AbstractSyntaxTree>, String> {
-        Ok(Box::new(AbstractSyntaxTree::Empty(0)))
+        let pos = self.lexer.cur_pos;
+        let left = self.parse_expression_arith_expr()?;
+        match *self.lexer.symbol.clone()? {
+            TokenSymbol::BitwiseShiftLeft( _ , _ ) => {
+                let symbol = self.lexer.symbol.clone()?;
+                self.lexer.advance();
+                let right = self.parse_expression_arith_expr()?;
+                Ok(Box::new(AbstractSyntaxTree::BitwiseShiftLeft(pos, self.lexer.cur_pos, left, symbol, right)))
+            },
+            TokenSymbol::BitwiseShiftRight( _ , _ ) => {
+                let symbol = self.lexer.symbol.clone()?;
+                self.lexer.advance();
+                let right = self.parse_expression_arith_expr()?;
+                Ok(Box::new(AbstractSyntaxTree::BitwiseShiftRight(pos, self.lexer.cur_pos, left, symbol, right)))
+            },
+            _ => Ok(left)
+        }
     }
 
     fn parse_expression_arith_expr(&self) -> Result<Box<AbstractSyntaxTree>, String> {
