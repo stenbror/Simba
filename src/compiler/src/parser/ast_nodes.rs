@@ -38,4 +38,5 @@ pub enum AbstractSyntaxTree {
     UnaryPostIncrement(u32, u32, Box<AbstractSyntaxTree>, Box<TokenSymbol>),
     UnaryPostDecrement(u32, u32, Box<AbstractSyntaxTree>, Box<TokenSymbol>),
     Power(u32, u32, Box<AbstractSyntaxTree>, Box<TokenSymbol>, Box<AbstractSyntaxTree>),
+    TrailerList(u32, u32, Option<Box<TokenSymbol>>, Box<AbstractSyntaxTree>, Option<Box<Vec<Box<AbstractSyntaxTree>>>>),
 }

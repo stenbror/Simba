@@ -1,6 +1,7 @@
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum TokenSymbol {
+    Empty,
     EOF,
     Newline(u32, u32),
     Indent,
@@ -39,4 +40,9 @@ pub enum TokenSymbol {
     Increment(u32, u32),
     Decrement(u32, u32),
     Power(u32, u32),
+    Await(u32, u32),
+    Dot(u32, u32),
+    ColonColon(u32, u32),
+    LeftParen(u32, u32),
+    LeftBracket(u32, u32),
 }

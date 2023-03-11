@@ -24,6 +24,7 @@ pub trait Expressions {
     fn parse_expression_power(&self) -> Result<Box<AbstractSyntaxTree>, String>;
     fn parse_expression_atom_expr(&self) -> Result<Box<AbstractSyntaxTree>, String>;
     fn parse_expression_atom(&self) -> Result<Box<AbstractSyntaxTree>, String>;
+    fn parse_expression_trailer(&self) -> Result<Box<Vec<Box<AbstractSyntaxTree>>>, String>;
 }
 
 
@@ -382,12 +383,44 @@ impl Expressions for SimbaParser {
         }
     }
 
+    // Rule: [ 'await' ] atom [ trailer* ]
     fn parse_expression_atom_expr(&self) -> Result<Box<AbstractSyntaxTree>, String> {
-        Ok(Box::new(AbstractSyntaxTree::Empty(0)))
+        let pos = self.lexer.cur_pos;
+        let mut symbol : Box<TokenSymbol> = Box::new(TokenSymbol::Empty); // 'await'
+        match *self.lexer.symbol.clone()? {
+            TokenSymbol::Await( _ , _ ) => {
+                symbol = self.lexer.symbol.clone()?;
+                self.lexer.advance();
+            },
+            _ => ()
+        }
+        let left = self.parse_expression_atom()?;
+        match ( &*symbol, *self.lexer.symbol.clone()?)  {
+            ( _ , TokenSymbol::Dot( _ , _ ) ) |
+            ( _ , TokenSymbol::ColonColon( _ , _ ) ) |
+            ( _ , TokenSymbol::LeftParen( _ , _ ) ) |
+            ( _ , TokenSymbol::LeftBracket( _ , _ ) ) => {
+                let right = self.parse_expression_trailer()?;
+                let await_symbol_elements = match *symbol { TokenSymbol::Await( _ , _ ) => Some(symbol), _ => None };
+                Ok(Box::new(AbstractSyntaxTree::TrailerList(pos, self.lexer.cur_pos, await_symbol_elements, left, Some(right))))
+            },
+            ( TokenSymbol::Await( _ , _ ), _ ) => {
+                let await_symbol = match *symbol { TokenSymbol::Await( _ , _ ) => Some(symbol), _ => None };
+                Ok(Box::new(AbstractSyntaxTree::TrailerList(pos, self.lexer.cur_pos, await_symbol, left, None)))
+            },
+            ( _ , _ ) => Ok(left)
+        }
     }
 
     fn parse_expression_atom(&self) -> Result<Box<AbstractSyntaxTree>, String> {
         Ok(Box::new(AbstractSyntaxTree::Empty(0)))
+    }
+
+    fn parse_expression_trailer(&self) -> Result<Box<Vec<Box<AbstractSyntaxTree>>>, String> {
+        let a = Box::new( AbstractSyntaxTree::Empty(0) );
+        let b = vec! [ a ];
+        let c = Box::new( b );
+        Ok(c)
     }
 }
 
